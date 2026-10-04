@@ -1,2 +1,2 @@
-smoothed_min=-15.122685743291557
-smoothed_max=287.8746583874356
+smoothed_min=0
+smoothed_max=255

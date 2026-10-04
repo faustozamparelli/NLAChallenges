@@ -1,4 +1,4 @@
 imported_components=430336
-imported_relative_residual=2.3316248560842142e-11
-solution_min=-14.053171545773221
-solution_max=82.060236512572388
+imported_relative_residual=9.7156459808474435e-11
+solution_min=-9.9211000526833857
+solution_max=75.466959046744023

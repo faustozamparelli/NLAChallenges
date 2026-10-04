@@ -1,6 +1,6 @@
-seed=2026
-noise_min=-49.999962840229266
-noise_max=49.999909568577976
-noisy_min=-34.528846163192959
-noisy_max=304.95325254275303
-clip_numerical_noise=false
+seed=42
+noise_min=-50
+noise_max=50
+noisy_min=0
+noisy_max=255
+clip_numerical_noise=true

@@ -1,7 +1,7 @@
 solver=BiCGSTAB
 preconditioner=ILU(0)
 tolerance=1e-12
-iterations=17
-solver_relative_residual=4.259715e-13
-relative_residual=4.2597938356252448e-13
-absolute_residual=1.9393812205034772e-08
+iterations=18
+solver_relative_residual=7.644217e-13
+relative_residual=7.644276195653998e-13
+absolute_residual=3.448697983765888e-08
