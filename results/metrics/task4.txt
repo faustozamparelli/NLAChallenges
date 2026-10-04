@@ -1,0 +1,4 @@
+operator_rows=430336
+operator_columns=430336
+A1_nonzeros=3865156
+expected_nonzeros=3865156

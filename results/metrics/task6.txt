@@ -1,0 +1,4 @@
+A2_nonzeros=2149056
+expected_nonzeros=2149056
+A2_symmetric=false
+A2_transpose_difference_frobenius=2621.9992372233824

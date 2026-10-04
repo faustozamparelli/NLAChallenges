@@ -1,0 +1,8 @@
+solver=BiCGSTAB
+preconditioner=DiagonalPreconditioner
+tolerance=1e-10
+max_iterations=2000
+iterations=52
+solver_relative_residual=2.3316249112390609e-11
+relative_residual=2.3316248560842142e-11
+absolute_residual=1.0615324669779776e-06

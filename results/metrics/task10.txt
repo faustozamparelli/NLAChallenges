@@ -1,0 +1,4 @@
+A3_nonzeros=2575460
+A3_symmetric=false
+A3_transpose_difference_frobenius=4540.2819295722156
+A3_transpose_sum_frobenius=0

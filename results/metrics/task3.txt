@@ -1,0 +1,4 @@
+v_components=430336
+w_components=430336
+v_euclidean_norm=41415.341203471929
+w_euclidean_norm=45527.584088322867

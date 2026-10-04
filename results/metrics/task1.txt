@@ -1,0 +1,5 @@
+height_m=656
+width_n=656
+pixels_N=430336
+original_min=6
+original_max=255
