@@ -6,6 +6,13 @@ operators, apply them to image vectors, and solve two systems with LIS and Eigen
 
 [Challenge1.pdf](Challenge1.pdf) contains the assignment.
 
+## Run
+
+In the course container, run `bash run.sh` from this directory. The script
+builds the Eigen and LIS programs, runs all 13 tasks in order, checks both
+solution residuals, and writes outputs under `results/`. Optional arguments
+are the input image and output directory: `bash run.sh deer.jpg results`.
+
 ## Results
 
 | Task | Answer / output |
@@ -17,28 +24,29 @@ operators, apply them to image vectors, and solve two systems with LIS and Eigen
 | 5 | [Smoothed noisy image](results/images/task05_smoothed.png). |
 | 6 | **2149056** nonzeros in A2; **not symmetric**. |
 | 7 | [Sharpened original image](results/images/task07_sharpened.png). |
-| 8 | LIS BiCGSTAB + ILU(0): **17 iterations**, final relative residual **4.259715e-13**. |
+| 8 | LIS BiCGSTAB + ILU(0): **18 iterations**, final relative residual **7.644217e-13**. |
 | 9 | [LIS solution image](results/images/task09_lis_solution.png). |
 | 10 | A3 is **not symmetric**; it is **skew-symmetric**. |
 | 11 | [Edge-filtered original image](results/images/task11_edges.png). |
-| 12 | Eigen BiCGSTAB + diagonal preconditioning: **52 iterations**, final relative residual **2.331624911239061e-11**. |
+| 12 | Eigen BiCGSTAB + diagonal preconditioning: **48 iterations**, final relative residual **9.715645986150306e-11**. |
 | 13 | [Eigen solution image](results/images/task13_eigen_solution.png). |
 
 The forward filters compute **A1 w**, **A2 v** and **A3 v**. The inverse
 systems are **A2 x = w** (LIS, tolerance 1e−12) and **(4I + A3)y = w**
-(Eigen, tolerance 1e−10). Both solvers start from zero and allow 2000 iterations.
+(Eigen, tolerance 1e−10). Both solvers start from zero and allow up to 2000
+iterations.
 
 Residuals are relative Euclidean norms, ‖b − Ax‖₂ / ‖b‖₂. The saved
 solutions satisfy the tolerances when checked against the original systems:
 
 | System | Checked relative residual | Absolute residual |
 |---|---:|---:|
-| A2 x = w | 4.2597938356252448e-13 | 1.9393812205034772e-08 |
-| (4I + A3)y = w | 2.3316248560842142e-11 | 1.0615324669779776e-06 |
+| A2 x = w | 7.644276195653998e-13 | 3.448697983765888e-08 |
+| (4I + A3)y = w | 9.7156459808474435e-11 | 4.3831917957361468e-06 |
 
 Sparse operators use row-wise indexing, zero padding and unflipped kernels.
-Noise is uniform in [−50, 50], with seed **2026**. Numerical vectors retain
-unclipped double-precision values; PNG pixels are clipped to [0, 255] and rounded.
+Noise is uniform integer in [−50, 50], with seed **42**. Noisy pixel values are
+clipped to [0, 255] before vectorization; PNG pixels are rounded to bytes.
 Negative edge responses appear black, and the task-13 image retains its computed
 intensity scale.
 

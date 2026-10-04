@@ -54,6 +54,7 @@ int main(int argc, char** argv) {
             const Matrix W = add_noise(F);
             const Matrix noise = W - F;
             require(noise.minCoeff() >= -50 && noise.maxCoeff() <= 50, "Noise out of range");
+            require(W.minCoeff() >= 0 && W.maxCoeff() <= 255, "Noisy image out of range");
             save_lis_vector(flatten(W), data / "w.mtx");
             save_image(W, images / "task02_noisy.png");
             record("seed", noise_seed);
@@ -61,7 +62,7 @@ int main(int argc, char** argv) {
             record("noise_max", noise.maxCoeff());
             record("noisy_min", W.minCoeff());
             record("noisy_max", W.maxCoeff());
-            record("clip_numerical_noise", "false");
+            record("clip_numerical_noise", "true");
             break;
         }
         case 3: {

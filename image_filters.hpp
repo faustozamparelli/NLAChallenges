@@ -32,7 +32,7 @@ using Vector = Eigen::VectorXd;
 using Sparse = Eigen::SparseMatrix<double, Eigen::RowMajor>;
 using Kernel = Eigen::Matrix3d;
 namespace fs = std::filesystem;
-constexpr std::uint32_t noise_seed = 2026;
+constexpr std::uint32_t noise_seed = 42;
 
 inline void require(bool condition, const std::string& message) {
     if (!condition) throw std::runtime_error(message);
@@ -87,17 +87,14 @@ inline Matrix reshape(const Vector& v, int m, int n) {
 
 inline Matrix add_noise(const Matrix& F) {
     std::mt19937 generator(noise_seed);
+    std::uniform_int_distribution<int> distribution(-50, 50);
     Matrix W = F;
     for (Eigen::Index i = 0; i < F.rows(); ++i) {
         for (Eigen::Index j = 0; j < F.cols(); ++j) {
-            // Explicit mapping avoids implementation-dependent distribution
-            // algorithms. Uniform 32-bit samples mapped into [-50,50].
-            const double u = static_cast<double>(generator()) /
-                             static_cast<double>(std::mt19937::max());
-            W(i, j) += 100.0 * u - 50.0;
+            W(i, j) = std::clamp(F(i, j) + distribution(generator), 0.0, 255.0);
         }
     }
-    return W;  // Clip only the PNG copy, never this numerical right-hand side.
+    return W;
 }
 
 inline unsigned char display_byte(double value) {
