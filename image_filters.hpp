@@ -11,7 +11,6 @@
 #include <stb_image_write.h>
 
 #include <algorithm>
-#include <array>
 #include <cmath>
 #include <cstdint>
 #include <filesystem>
@@ -142,29 +141,6 @@ inline Sparse assemble(int m, int n, const Kernel& H) {
     return A;
 }
 
-// Independent reference, used for tests/checks only. The task outputs use A*v.
-inline Matrix stencil(const Matrix& F, const Kernel& H) {
-    Matrix G = Matrix::Zero(F.rows(), F.cols());
-    for (Eigen::Index i = 0; i < F.rows(); ++i)
-        for (Eigen::Index j = 0; j < F.cols(); ++j)
-            for (int a = 0; a < 3; ++a)
-                for (int b = 0; b < 3; ++b) {
-                    const Eigen::Index r = i + a - 1, s = j + b - 1;
-                    if (r >= 0 && r < F.rows() && s >= 0 && s < F.cols())
-                        G(i, j) += H(a, b) * F(r, s);
-                }
-    return G;
-}
-inline double stencil_difference(const Sparse& A, const Vector& input,
-                                 int m, int n, const Kernel& H) {
-    const Vector reference = flatten(stencil(reshape(input, m, n), H));
-    const Vector actual = A * input;
-    const double difference = (actual - reference).lpNorm<Eigen::Infinity>();
-    require(difference <= 1e-11 * std::max(1.0, reference.lpNorm<Eigen::Infinity>()),
-            "Sparse product disagrees with stencil");
-    return difference;
-}
-
 inline void save_lis_vector(const Vector& v, const fs::path& path) {
     require(v.allFinite(), "Nonfinite vector");
     std::ofstream out(path);
@@ -238,9 +214,7 @@ inline SolveResult solve_eigen(const Sparse& A, const Vector& b) {
     require(A.rows() == A.cols() && A.rows() == b.size() && b.allFinite(),
             "Invalid Eigen system dimensions or right-hand side");
     if (b.norm() == 0.0) return {Vector::Zero(b.size()), 0, 0.0, 0.0, 0.0};
-    // Nonsymmetric short-recurrence solver, selected by the controlled benchmark.
-    // For the task-12 matrix the diagonal preconditioner is D=4I; it is only
-    // scalar scaling, not a condition-number improvement. Check the true residual.
+    // The system is nonsymmetric. Its diagonal preconditioner is D=4I.
     Eigen::BiCGSTAB<Sparse, Eigen::DiagonalPreconditioner<double>> solver;
     solver.setTolerance(1e-10);
     solver.setMaxIterations(2000);

@@ -1,3 +1,2 @@
-stencil_max_difference=0
 edges_min=-758
 edges_max=816

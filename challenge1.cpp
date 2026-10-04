@@ -13,7 +13,7 @@ int main(int argc, char** argv) {
         require(parsed == task_text.size() && task >= 1 && task <= 13 && task != 8,
                 "Invalid C++ task number");
         const fs::path root = argv[3];
-        for (const auto& name : {"images", "data", "metrics", "logs"})
+        for (const auto& name : {"images", "data", "metrics"})
             fs::create_directories(root / name);
         const auto data = root / "data", images = root / "images";
         std::ofstream metrics(root / "metrics" / ("task" + std::to_string(task) + ".txt"));
@@ -49,7 +49,6 @@ int main(int argc, char** argv) {
             record("pixels_N", N);
             record("original_min", F.minCoeff());
             record("original_max", F.maxCoeff());
-            save_image(F, images / "task01_original.png");
             break;
         case 2: {
             const Matrix W = add_noise(F);
@@ -90,7 +89,6 @@ int main(int argc, char** argv) {
             const Sparse A1 = assemble(m, n, smoothing_kernel());
             const Vector w = read_vector("w.mtx"), smoothed = A1 * w;
             save_image(reshape(smoothed, m, n), images / "task05_smoothed.png");
-            record("stencil_max_difference", stencil_difference(A1, w, m, n, smoothing_kernel()));
             record("smoothed_min", smoothed.minCoeff());
             record("smoothed_max", smoothed.maxCoeff());
             break;
@@ -112,7 +110,6 @@ int main(int argc, char** argv) {
             check_size(A2);
             const Vector v = read_vector("v.mtx"), sharpened = A2 * v;
             save_image(reshape(sharpened, m, n), images / "task07_sharpened.png");
-            record("stencil_max_difference", stencil_difference(A2, v, m, n, sharpening_kernel()));
             record("sharpened_min", sharpened.minCoeff());
             record("sharpened_max", sharpened.maxCoeff());
             break;
@@ -147,10 +144,6 @@ int main(int argc, char** argv) {
             const Sparse A3 = assemble(m, n, edge_kernel());
             const Vector v = read_vector("v.mtx"), edges = A3 * v;
             save_image(reshape(edges, m, n), images / "task11_edges.png");
-            // Extra display of both edge polarities, not the input to any solve.
-            const Vector magnitude = edges.cwiseAbs();
-            save_image(reshape(magnitude, m, n), images / "task11_edges_absolute.png");
-            record("stencil_max_difference", stencil_difference(A3, v, m, n, edge_kernel()));
             record("edges_min", edges.minCoeff());
             record("edges_max", edges.maxCoeff());
             break;
