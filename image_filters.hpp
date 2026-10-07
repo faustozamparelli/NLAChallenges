@@ -217,7 +217,10 @@ inline SolveResult solve_eigen(const Sparse& A, const Vector& b) {
     solver.setMaxIterations(2000);
     solver.compute(A);
     require(solver.info() == Eigen::Success, "Eigen solver setup failed");
-    Vector x = solver.solve(b);
+    // For A=4I+A3, b/4 solves the diagonal approximation (one Jacobi step
+    // from zero). BiCGSTAB then corrects for the edge operator A3.
+    const Vector initial_guess = b / 4.0;
+    Vector x = solver.solveWithGuess(b, initial_guess);
     require(solver.info() == Eigen::Success && x.allFinite(), "Eigen solve failed");
     const double absolute = (b - A * x).norm();
     const double relative = b.norm() == 0.0 ? absolute : absolute / b.norm();

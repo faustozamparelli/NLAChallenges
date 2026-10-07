@@ -158,6 +158,7 @@ int main(int argc, char** argv) {
                     "Eigen vector export failed");
             record("solver", "BiCGSTAB");
             record("preconditioner", "DiagonalPreconditioner");
+            record("initial_guess", "w/4");
             record("tolerance", 1e-10);
             record("max_iterations", 2000);
             record("iterations", result.iterations);

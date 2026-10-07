@@ -1,10 +1,7 @@
 # NLA Challenge 1
 
-This challenge uses sparse linear algebra to filter and denoise the supplied
-grayscale image. The 13 tasks add noise, build smoothing, sharpening and edge
-operators, apply them to image vectors, and solve two systems with LIS and Eigen.
-
-[Challenge1.pdf](Challenge1.pdf) contains the assignment.
+Solutions to the 13 tasks in [Challenge1.pdf](Challenge1.pdf), using Eigen,
+LIS and stb for image loading and saving.
 
 ## Run
 
@@ -12,6 +9,9 @@ In the course container, run `bash run.sh` from this directory. The script
 builds the Eigen and LIS programs, runs all 13 tasks in order, checks both
 solution residuals, and writes outputs under `results/`. Optional arguments
 are the input image and output directory: `bash run.sh deer.jpg results`.
+
+[submission.txt](submission.txt) contains the final form answers and the PNG
+upload paths for all 13 tasks.
 
 ## Results
 
@@ -26,15 +26,23 @@ are the input image and output directory: `bash run.sh deer.jpg results`.
 | 7 | [Sharpened original image](results/images/task07_sharpened.png). |
 | 8 | LIS BiCGSTAB + ILU(0): **18 iterations**, final relative residual **7.644217e-13**. |
 | 9 | [LIS solution image](results/images/task09_lis_solution.png). |
-| 10 | A3 is **not symmetric**; it is **skew-symmetric**. |
+| 10 | **2575460** nonzeros in A3; **not symmetric**, but **skew-symmetric**. |
 | 11 | [Edge-filtered original image](results/images/task11_edges.png). |
-| 12 | Eigen BiCGSTAB + diagonal preconditioning: **48 iterations**, final relative residual **9.715645986150306e-11**. |
+| 12 | Eigen BiCGSTAB + diagonal preconditioning, initial guess **w/4**: **46 iterations**, final relative residual **2.7198720144561966e-11**. |
 | 13 | [Eigen solution image](results/images/task13_eigen_solution.png). |
 
 The forward filters compute **A1 w**, **A2 v** and **A3 v**. The inverse
 systems are **A2 x = w** (LIS, tolerance 1e−12) and **(4I + A3)y = w**
-(Eigen, tolerance 1e−10). Both solvers start from zero and allow up to 2000
-iterations.
+(Eigen, tolerance 1e−10). LIS starts from zero; Eigen starts from **y0 = w/4**.
+Both solvers allow up to 2000 iterations.
+
+For the Eigen system, the diagonal is **D = 4I**, so **y0 = D⁻¹w = w/4**
+solves the diagonal approximation and equals one Jacobi step from zero.
+Its initial residual is **w − (4I + A3)y0 = −A3w/4**. In a controlled comparison
+using the same matrix, seed-42 noisy vector, solver and tolerance, this guess
+reduced the initial relative residual from **1** to approximately **0.390** and
+the iteration count from **48** to **46**. The diagonal preconditioner itself
+is uniform scaling by 1/4; it does not change the condition number.
 
 Residuals are relative Euclidean norms, ‖b − Ax‖₂ / ‖b‖₂. The saved
 solutions satisfy the tolerances when checked against the original systems:
@@ -42,9 +50,12 @@ solutions satisfy the tolerances when checked against the original systems:
 | System | Checked relative residual | Absolute residual |
 |---|---:|---:|
 | A2 x = w | 7.644276195653998e-13 | 3.448697983765888e-08 |
-| (4I + A3)y = w | 9.7156459808474435e-11 | 4.3831917957361468e-06 |
+| (4I + A3)y = w | 2.7198721953538819e-11 | 1.2270642132934253e-06 |
 
-Sparse operators use row-wise indexing, zero padding and unflipped kernels.
+Sparse operators use row-major storage, row-wise pixel indexing, zero padding
+and unflipped kernels. Row-major sparse storage suits the repeated matrix-vector
+products in BiCGSTAB and is recommended for this solver in the
+[Eigen documentation](https://libeigen.gitlab.io/eigen/docs-nightly/classEigen_1_1BiCGSTAB.html).
 Noise is uniform integer in [−50, 50], with seed **42**. Noisy pixel values are
 clipped to [0, 255] before vectorization; PNG pixels are rounded to bytes.
 Negative edge responses appear black, and the task-13 image retains its computed

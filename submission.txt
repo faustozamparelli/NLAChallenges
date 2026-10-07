@@ -1,0 +1,101 @@
+NLA CHALLENGE 1 - FINAL SUBMISSION Microsoft Form
+
+TASK 1 - Matrix size
+Answer: (m, n) = (656, 656).
+m is the number of rows (height); n is the number of columns (width).
+The loaded pixel intensities lie in [0, 255].
+
+TASK 2 - Noisy image
+Upload: results/images/task02_noisy.png
+Independent uniform integer noise in [-50, 50] was added to each pixel
+using std::mt19937 with seed 42. The noisy values were clipped to [0, 255].
+
+TASK 3 - Vector size and Euclidean norm
+Answer: ||v||_2 = 41415.341203471929.
+Both v and w have m*n = 656*656 = 430336 components.
+Row-wise indexing is used: vector index i*n+j corresponds to pixel (i, j).
+Reshaping v back into the image reproduces the original matrix exactly.
+
+TASK 4 - Nonzero entries in A1
+Answer: 3865156 nonzero entries.
+A1 has size 430336 x 430336 and uses the smoothing kernel
+Hav1 = (1/12) * [[1, 1, 1], [1, 4, 1], [1, 1, 1]].
+With zero padding, nnz(A1) = (3*m-2)*(3*n-2) = 3865156.
+
+TASK 5 - Smoothed noisy image, A1*w
+Upload: results/images/task05_smoothed.png
+
+TASK 6 - Nonzero entries and symmetry of A2
+Answer: 2149056 nonzero entries. A2 is not symmetric.
+A2 has size 430336 x 430336 and uses the sharpening kernel
+Hsh1 = [[0, -3, 0], [-1, 9, -3], [0, -1, 0]].
+With zero padding, nnz(A2) = 5*m*n-2*m-2*n = 2149056.
+Opposite neighbor weights differ, so A2 is not equal to its transpose.
+
+TASK 7 - Sharpened original image, A2*v
+Upload: results/images/task07_sharpened.png
+
+TASK 8 - LIS solution of A2*x = w
+Answer: 18 iterations; final relative residual = 7.644217e-13.
+Solver: LIS BiCGSTAB.
+Preconditioner: ILU(0).
+Prescribed tolerance: 1e-12; maximum iterations: 2000; initial guess: zero.
+The exported inputs are results/data/A2.mtx and results/data/w.mtx.
+The saved solution is results/data/x_lis.mtx.
+An independent check gives ||w-A2*x||_2 / ||w||_2 = 7.644276195653998e-13.
+The absolute residual ||w-A2*x||_2 is 3.448697983765888e-08.
+The verified relative residual satisfies the prescribed tolerance.
+
+TASK 9 - LIS solution image
+Upload: results/images/task09_lis_solution.png
+
+TASK 10 - Nonzero entries and symmetry of A3
+Answer: 2575460 nonzero entries. A3 is not symmetric; it is skew-symmetric.
+A3 has size 430336 x 430336 and uses the edge detection kernel
+Hed2 = [[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]].
+With zero padding, nnz(A3) = 2*(n-1)*(3*m-2) = 2575460.
+The opposite horizontal weights have opposite signs: A3^T = -A3.
+The computed Frobenius norm ||A3+A3^T||_F is exactly zero.
+
+TASK 11 - Edge-filtered original image, A3*v
+Upload: results/images/task11_edges.png
+
+TASK 12 - Eigen solution of (4*I+A3)*y = w
+Answer: 46 iterations; final relative residual = 2.7198720144561966e-11.
+Solver: Eigen BiCGSTAB.
+Preconditioner: DiagonalPreconditioner.
+Prescribed tolerance: 1e-10; maximum iterations: 2000.
+Initial guess: y0 = w/4, supplied through solveWithGuess.
+An independent check gives ||w-(4*I+A3)*y||_2 / ||w||_2
+= 2.7198721953538819e-11.
+The absolute residual is 1.2270642132934253e-06.
+The verified relative residual satisfies the prescribed tolerance.
+
+Justification of the initial guess:
+The diagonal of M = 4*I+A3 is D = 4*I. Therefore y0 = D^(-1)*w = w/4
+solves the diagonal approximation and is one Jacobi step starting from zero.
+The initial residual is r0 = w-M*y0 = -A3*w/4.
+In a controlled comparison with the same seed-42 input, matrix, solver,
+preconditioner and tolerance, this choice reduced the initial relative
+residual from 1 to approximately 0.390 and the iteration count from 48 to 46.
+The diagonal preconditioner is uniform scaling by 1/4; it does not improve
+the condition number. The initial guess and the preconditioner serve
+different roles.
+
+TASK 13 - Eigen solution image
+Upload: results/images/task13_eigen_solution.png
+The solution y was exported to results/data/y_eigen.mtx, reimported into
+Eigen, checked against the original system, and converted into the PNG.
+Its relative residual after reimport is 2.7198721953538819e-11.
+
+IMPLEMENTATION AND SOLVER CHOICES
+Both systems are nonsymmetric, so BiCGSTAB is an appropriate Krylov solver;
+ordinary Conjugate Gradient's symmetric positive definite assumptions do
+not apply. ILU(0) provides a sparse approximation to the factors of A2.
+The Eigen system uses the simple diagonal preconditioner and the justified
+w/4 initial guess described above.
+Sparse operators use row-major storage for repeated matrix-vector products.
+Pixel vectorization is row-wise, independently of matrix storage order.
+Convolution follows the assignment's unflipped kernels and zero padding.
+PNG output clips to [0, 255] and rounds to bytes. Negative edge responses
+appear black; solution images retain their computed intensity scale.

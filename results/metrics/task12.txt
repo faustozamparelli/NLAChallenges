@@ -1,8 +1,9 @@
 solver=BiCGSTAB
 preconditioner=DiagonalPreconditioner
+initial_guess=w/4
 tolerance=1e-10
 max_iterations=2000
-iterations=48
-solver_relative_residual=9.7156459861503058e-11
-relative_residual=9.7156459808474435e-11
-absolute_residual=4.3831917957361468e-06
+iterations=46
+solver_relative_residual=2.7198720144561966e-11
+relative_residual=2.7198721953538819e-11
+absolute_residual=1.2270642132934253e-06
